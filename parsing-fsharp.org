@@ -20,29 +20,38 @@
 
   *Introducing F#*
 
+* 
+  :PROPERTIES:
+  :reveal_background: ./images/threadless.jpg
+  :END:
+
 * About me
 
   #+ATTR_REVEAL: :frag (appear)
   - I'm [[https://twitter.com/paudirac][@paudirac]]
   - I'm working at [[https://twitter.com/capside][@capside]]
   - I usually rant about Perl
-  - nobody is perfect
+  - I usually praise about functional programming
+  - my knowledge of football reduces to: =I think there's a spherical ball=
+  - so…, probably I meant soccer
 
 * {{{color(black, Intent)}}}
   :PROPERTIES:
   :reveal_background_transition: zoom
   :reveal_background: ./images/inception.jpg
-  :style: color:#f00
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
   {{{color(gray, trying to transmit why I love the FP approach)}}}
 
-* outline
+* 
+  :PROPERTIES:
+  :reveal_background_transition: zoom
+  :reveal_background: ./images/inception.jpg
+  :END:
 
-  #+ATTR_REVEAL: :frag (appear)
   #+begin_src basic :eval never
-  REM script
+  REM outline
   NEW
   30 PRINT "building a parser/translator with functions"
   10 PRINT "building blocks"
@@ -51,6 +60,15 @@
   90 PRINT "building a parser/compiler with functions and types"
   #+end_src
 
+** 
+  :PROPERTIES:
+  :reveal_background_transition: zoom
+  :reveal_background: ./images/inception.jpg
+  :END:
+
+   #+begin_src fsharp :eval never
+   buildingBlocks |> buildingAParser |> buildingACompiler
+   #+end_src
 
 * building blocks (types)
   :PROPERTIES:
@@ -60,7 +78,7 @@
 
 ** (simple) types
   :PROPERTIES:
-  :reveal_background: ./images/particles.jpg
+  :reveal_background: ./images/building-blocks.jpg
   :END:
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
@@ -76,8 +94,33 @@
 
 ** function types
   :PROPERTIES:
-  :reveal_background: ./images/feynman.png
+  :reveal_background: ./images/building-blocks.jpg
   :END:
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >sprintf "The meaning of life is %d";;
+   val it : (int -> string)
+   #+end_src
+
+
+** function application 
+  :PROPERTIES:
+  :reveal_background: ./images/building-blocks.jpg
+  :END:
+
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >sprintf "The meaning of life is %d" 42;;
+   val it : string = "The meaning of life is 42"
+   #+end_src
+
+** let 
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >let life = 42;;
+   val life : int = 42
+   #+end_src
+
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
    >let meaning = sprintf "The meaning of life is %d";;
@@ -85,21 +128,31 @@
    #+end_src
 
    #+ATTR_REVEAL: :frag (appear)
-   Maybe its easy by now to read something like
+   or 
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
    >let meaning i = sprintf "The meaning of life is %d" i;;
    val meaning : i:int -> string
    #+end_src
 
-** function application 
+** function application (revisited)
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
-   >meaning 42;;
+   >meaning life;;
    val it : string = "The meaning of life is 42"
    #+end_src
 
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >life |> meaning;;
+   val it : string = "The meaning of life is 42"
+   #+end_src
 
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >meaning <| 40 + 2;;
+   val it : string = "The meaning of life is 42"
+   #+end_src
 
 
 * Parsing a char
@@ -114,8 +167,28 @@
    =s=:
 
    #+ATTR_REVEAL: :frag (appear)
-   - succeds parsing a
-   - or fails parsing a
+   - succeds parsing =a=
+   - or fails parsing =a=
+
+** REPL time 
+** 
+   #+begin_src fsharp :eval never
+   
+type Parsed =
+    | Success of string * string
+    | Failure of string
+
+   #+end_src
+
+** pChar
+   #+begin_src fsharp :eval never
+   
+let pChar c =
+    function (s:string) -> let f = s.[0]
+                           if f = c then Success (stringify c, s.[1..])
+                           else Failure s
+
+   #+end_src
 
 ** Implemenentation #1
 

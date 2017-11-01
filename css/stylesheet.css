@@ -3,7 +3,8 @@
     background-color: #002b36;
 }
 
-.reveal .slides section .org-src-container *.visible {
+.reveal .slides section .org-src-container *.visible,
+.reveal .slides section .org-src-container pre {
     background-color: #002b36;
     padding: 1rem;
 }
