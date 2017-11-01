@@ -15,16 +15,8 @@
 
 
 * Parsing markdown with functions
-  :PROPERTIES:
-  :reveal_background: http://fsharp.org/img/logo/fsharp256.png
-  :END:
 
   *Introducing F#*
-
-* 
-  :PROPERTIES:
-  :reveal_background: ./images/threadless.jpg
-  :END:
 
 * About me
 
@@ -36,21 +28,13 @@
   - my knowledge of football reduces to: =I think there's a spherical ball=
   - so…, probably I meant soccer
 
-* intent
-  :PROPERTIES:
-  :reveal_background_transition: zoom
-  :reveal_background: ./images/inception.jpg
-  :END:
-
-  #+ATTR_REVEAL: :frag (appear)
-  trying to transmit why I love the FP approach
-
 * 
   :PROPERTIES:
   :reveal_background_transition: zoom
   :reveal_background: ./images/inception.jpg
   :END:
 
+  #+ATTR_REVEAL: :frag (appear)
   #+begin_src basic :eval never
   REM outline
   NEW
@@ -116,6 +100,10 @@
    #+end_src
 
 ** let 
+  :PROPERTIES:
+  :reveal_background: ./images/ET_Moon.jpg
+  :END:
+  
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
    >let life = 42;;
@@ -137,6 +125,10 @@
    #+end_src
 
 ** function application (revisited)
+  :PROPERTIES:
+  :reveal_background: ./images/ET_Moon.jpg
+  :END:
+
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
    >meaning life;;
@@ -157,12 +149,18 @@
 
 
 * Parsing a char
+  :PROPERTIES:
+  :reveal_background: ./images/refraction.jpg
+  :END:
 
   #+ATTR_REVEAL: :frag (appear)
   We would like to parse the character ~a~.
   
 ** Design
-   
+   :PROPERTIES:
+   :reveal_background: ./images/refraction.jpg
+   :END:
+  
    #+ATTR_REVEAL: :frag (appear)
    The parser of =a= is a function that, given an input string
    =s=:
@@ -192,8 +190,10 @@ let pChar c =
    #+end_src
 
 ** Recap
+  :PROPERTIES:
+  :reveal_background: ./images/monolith-apes.jpg
+  :END:
 
-   #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
    
 let stringify x = x.ToString();
@@ -208,14 +208,6 @@ let pChar c =
                            else Failure s
 
    #+end_src
-
-** Demo
-
-#+BEGIN_NOTES
-On the repl, try:
-(parse-a "hello")
-(parse-a "ahello")
-#+END_NOTES
 
 * parsing two chars 
   
@@ -265,4 +257,56 @@ let (<&>) p1 p2 = pAnd p1 p2
 let pAB = pA <&> pB
    #+end_src
 
+* pSeq
 
+** recursive
+
+   #+begin_src fsharp :eval never
+let pSeq ps =
+    let plist = ps |> Seq.toList
+    function s ->
+        let rec parse parsers acc rest =
+            match parsers with
+            | [] -> Success (acc, rest)
+            | p::ps' -> let r = p rest
+                        match r with
+                        | Success (a, b) -> parse ps' (acc + a) b
+                        | Failure f -> r
+        parse plist "" s
+   #+end_src
+
+** generalize
+
+   From the docs:
+   #+begin_src fsharp :eval never
+Seq.fold : ('State -> 'T -> 'State) -> 'State -> seq<'T> -> 'State
+   #+end_src
+
+   in our case ``State` is `Parser` and `T` is `Parser` also.
+
+   pDot is unit?
+   Example with unit
+
+   #+begin_src fsharp :eval never
+let pDot = 
+    function s -> match explode s with
+                    | [] -> Failure s
+                    | c::cs -> Success (implode [c], implode cs)
+
+let pSeq' ps = 
+    let sp = ps |> Array.ofSeq |> Array.rev
+    let folder acc curr = pAnd curr acc
+    in Seq.fold folder pDot sp
+   #+end_src
+
+** Recap 
+  :PROPERTIES:
+  :reveal_background: ./images/monolith-moon.jpg
+  :END:
+
+   #+begin_src fsharp :eval never
+let pSeq' ps = 
+    let sp = ps |> Array.ofSeq |> Array.rev
+    let folder acc curr = pAnd curr acc
+    in Seq.fold folder pDot sp
+   #+end_src
