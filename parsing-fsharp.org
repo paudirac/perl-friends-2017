@@ -1,6 +1,106 @@
-#+title: Parsing ~markdown~ with functions
+#+title: Parsing markdown with functions (with F#)
+#+subtitle: An F# introduction
 #+author: @paudirac
+#+email: pau.cervera@gmail.com
+
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+REVEAL_EXTRA_CSS: ./css/stylesheet.css
+
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_title_slide:nil
+
+#+MACRO: color @@html:<font color="$1">$2</font>@@
+
+
+* Parsing markdown with functions
+  :PROPERTIES:
+  :reveal_background: http://fsharp.org/img/logo/fsharp256.png
+  :END:
+
+  *Introducing F#*
+
+* About me
+
+  #+ATTR_REVEAL: :frag (appear)
+  - I'm [[https://twitter.com/paudirac][@paudirac]]
+  - I'm working at [[https://twitter.com/capside][@capside]]
+  - I usually rant about Perl
+  - nobody is perfect
+
+* {{{color(black, Intent)}}}
+  :PROPERTIES:
+  :reveal_background_transition: zoom
+  :reveal_background: ./images/inception.jpg
+  :style: color:#f00
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+  {{{color(gray, trying to transmit why I love the FP approach)}}}
+
+* outline
+
+  #+ATTR_REVEAL: :frag (appear)
+  #+begin_src basic :eval never
+  REM script
+  NEW
+  30 PRINT "building a parser/translator with functions"
+  10 PRINT "building blocks"
+  40 GOTO 90
+  50 LET MEANING = 40 + 2
+  90 PRINT "building a parser/compiler with functions and types"
+  #+end_src
+
+
+* building blocks (types)
+  :PROPERTIES:
+  :reveal_background: ./images/building-blocks.jpg
+  :END:
+  (introducing f#)
+
+** (simple) types
+  :PROPERTIES:
+  :reveal_background: ./images/particles.jpg
+  :END:
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >42;;
+   val it : int = 42
+   #+end_src
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >"The meaning of life is %d";;
+   val it : string = "The meaning of life is %d"
+   #+end_src
+
+
+** function types
+  :PROPERTIES:
+  :reveal_background: ./images/feynman.png
+  :END:
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >let meaning = sprintf "The meaning of life is %d";;
+   val meaning : (int -> string)
+   #+end_src
+
+   #+ATTR_REVEAL: :frag (appear)
+   Maybe its easy by now to read something like
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >let meaning i = sprintf "The meaning of life is %d" i;;
+   val meaning : i:int -> string
+   #+end_src
+
+** function application 
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   >meaning 42;;
+   val it : string = "The meaning of life is 42"
+   #+end_src
+
+
+
 
 * Parsing a char
 
