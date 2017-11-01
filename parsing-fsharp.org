@@ -1,0 +1,44 @@
+#+title: Parsing ~markdown~ with functions
+#+author: @paudirac
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+* Parsing a char
+
+  #+ATTR_REVEAL: :frag (appear)
+  We would like to parse the character ~a~.
+  
+** Design
+   
+   #+ATTR_REVEAL: :frag (appear)
+   The parser of =a= is a function that, given an input string
+   =s=:
+
+   #+ATTR_REVEAL: :frag (appear)
+   - succeds parsing a
+   - or fails parsing a
+
+** Implemenentation #1
+
+   #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+   
+let stringify x = x.ToString();
+
+type Parsed =
+    | Success of string * string
+    | Failure of string
+
+let pChar c =
+    function (s:string) -> let f = s.[0]
+                           if f = c then Success (stringify c, s.[1..])
+                           else Failure s
+
+   #+end_src
+
+** Demo
+
+#+BEGIN_NOTES
+On the repl, try:
+(parse-a "hello")
+(parse-a "ahello")
+#+END_NOTES
