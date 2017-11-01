@@ -1,4 +1,9 @@
 // custom styles
-pre {
+.reveal .slides section pre.fragment.visible {
     background-color: #002b36;
+}
+
+.reveal .slides section .org-src-container *.visible {
+    background-color: #002b36;
+    padding: 1rem;
 }
