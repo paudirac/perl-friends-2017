@@ -5,6 +5,7 @@
 
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 #+REVEAL_EXTRA_CSS: ./css/stylesheet.css
+# #+REVEAL_THEME: white
 
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
@@ -35,14 +36,14 @@
   - my knowledge of football reduces to: =I think there's a spherical ball=
   - so…, probably I meant soccer
 
-* {{{color(black, Intent)}}}
+* intent
   :PROPERTIES:
   :reveal_background_transition: zoom
   :reveal_background: ./images/inception.jpg
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
-  {{{color(gray, trying to transmit why I love the FP approach)}}}
+  trying to transmit why I love the FP approach
 
 * 
   :PROPERTIES:
@@ -190,7 +191,7 @@ let pChar c =
 
    #+end_src
 
-** Implemenentation #1
+** Recap
 
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
@@ -215,3 +216,53 @@ On the repl, try:
 (parse-a "hello")
 (parse-a "ahello")
 #+END_NOTES
+
+* parsing two chars 
+  
+  #+ATTR_REVEAL: :frag (appear)
+  The parser of =ab= is a function that, given an input string
+  =s=:
+
+  #+ATTR_REVEAL: :frag (appear)
+   - succeds parsing =ab=
+   - or fails parsing =ab=
+
+** generalize 
+
+  #+ATTR_REVEAL: :frag (appear)
+  The would like a function that, given two parsers =p1= and =p2=
+  will return a parser that, given an input string
+  =s=:
+
+  #+ATTR_REVEAL: :frag (appear)
+   - will succeds parsing what =p1= parses and parsing what =p2= parses
+   - or fails parsing
+
+** 
+   #+begin_src fsharp :eval never
+let pAnd p1 p2 =
+    function (s:string) -> match p1 s with
+                  | Failure f -> Failure f
+                  | Success (f,r) -> match p2 r with
+                                     | Success (f2, r2) -> Success (f + f2, r2)
+                                     | _ -> Failure f
+   #+end_src
+
+   #+begin_src fsharp :eval never
+val pAnd : p1:(string -> Parsed) -> p2:(string -> Parsed) -> _arg1:string -> Parsed
+   #+end_src
+
+** 
+   #+begin_src fsharp :eval never
+let pA = pChar 'a'
+let pB = pChar 'b'
+let pAB = pAnd pA pB
+   #+end_src
+
+** expressivity
+   #+begin_src fsharp :eval never
+let (<&>) p1 p2 = pAnd p1 p2
+let pAB = pA <&> pB
+   #+end_src
+
+
