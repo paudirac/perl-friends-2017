@@ -19,6 +19,10 @@
   *Introducing F#*
 
 * About me
+  :PROPERTIES:
+  :reveal_background_transition: zoom
+  :reveal_background: ./images/fullerene.png
+  :END:
 
   #+ATTR_REVEAL: :frag (appear)
   - I'm [[https://twitter.com/paudirac][@paudirac]]
@@ -29,9 +33,10 @@
   - so…, probably I meant soccer
 
 * 
+
+* 
   :PROPERTIES:
-  :reveal_background_transition: zoom
-  :reveal_background: ./images/inception.jpg
+  :reveal_background: ./images/pills2.jpg
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
@@ -47,8 +52,7 @@
 
 ** 
   :PROPERTIES:
-  :reveal_background_transition: zoom
-  :reveal_background: ./images/inception.jpg
+  :reveal_background: ./images/pills2.jpg
   :END:
 
    #+begin_src fsharp :eval never
@@ -57,13 +61,13 @@
 
 * building blocks (types)
   :PROPERTIES:
-  :reveal_background: ./images/building-blocks.jpg
+  :reveal_background: ./images/building-blocks-free.png
   :END:
   (introducing f#)
 
 ** (simple) types
   :PROPERTIES:
-  :reveal_background: ./images/building-blocks.jpg
+  :reveal_background: ./images/building-blocks-free.png
   :END:
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
@@ -79,7 +83,7 @@
 
 ** function types
   :PROPERTIES:
-  :reveal_background: ./images/building-blocks.jpg
+  :reveal_background: ./images/building-blocks-free.png
   :END:
    #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
@@ -90,7 +94,7 @@
 
 ** function application 
   :PROPERTIES:
-  :reveal_background: ./images/building-blocks.jpg
+  :reveal_background: ./images/building-blocks-free.png
   :END:
 
    #+ATTR_REVEAL: :frag (appear)
@@ -169,8 +173,17 @@
    - succeds parsing =a=
    - or fails parsing =a=
 
-** REPL time 
+* REPL time 
+  :PROPERTIES:
+  :reveal_background: ./images/inception-free.jpg
+  :END:
+
 ** 
+  :PROPERTIES:
+  :reveal_background: ./images/inception-free.jpg
+  :END:
+
+
    #+begin_src fsharp :eval never
    
 type Parsed =
@@ -180,6 +193,11 @@ type Parsed =
    #+end_src
 
 ** pChar
+  :PROPERTIES:
+  :reveal_background: ./images/inception-free.jpg
+  :END:
+
+
    #+begin_src fsharp :eval never
    
 let pChar c =
