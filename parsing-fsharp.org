@@ -275,6 +275,7 @@ let (<&>) p1 p2 = pAnd p1 p2
 let pAB = pA <&> pB
    #+end_src
 
+
 * pSeq
 
 ** recursive
@@ -327,4 +328,49 @@ let pSeq' ps =
     let sp = ps |> Array.ofSeq |> Array.rev
     let folder acc curr = pAnd curr acc
     in Seq.fold folder pDot sp
+   #+end_src
+
+** bind
+
+   #+begin_src fsharp :eval never
+let pBind p f =
+    function s -> match p s with
+                    | Success (s', r) -> let p' = f s' in p' r
+                    | _ -> Failure s
+
+let (>>=) p f = pBind p f
+
+let succeed v = function s -> Success(v, s)
+
+   #+end_src
+
+** 
+
+   #+begin_src fsharp :eval never
+> let pA = pChar 'a';;
+val pA : (string -> Parsed)
+> let pB = pChar 'b';;
+val pB : (string -> Parsed)
+> pA >>= (fun s -> pB);;
+val it : (string -> Parsed)
+> (pA >>= (fun s -> pB)) "abcde";;
+val it : Parsed = Success ("b","cde")
+> (pA >>= (fun a -> pB >>= (fun b -> succeed (a + b)))) "abcde";;
+val it : Parsed = Success ("ab","cde")
+   #+end_src
+
+** 
+
+   #+begin_src fsharp :eval never
+> (pA >>= fun a ->
+-            pB >>= fun b ->
+-                       succeed (a + b)) "abcdef";;
+val it : Parsed = Success ("ab","cdef")
+   #+end_src
+
+   #+begin_src fsharp :eval never
+> let abc = a >>= fun a' -> b >>= fun b' -> c >>= fun c' -> succeed (a' + b' + c');;
+val abc : (string -> Parsed)
+> abc "abcdef";;
+val it : Parsed = Success ("abc","def")
    #+end_src

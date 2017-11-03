@@ -82,11 +82,27 @@ let pUnit =
                     | [] -> Failure s
                     | c::cs -> Success (implode [c], implode cs)
 
+let pZero = function s -> Failure s
+
+let succeed v = function s -> Success(v, s)
+let pBind p f =
+    function s -> match p s with
+                    | Success (s', r) -> let p' = f s' in p' r
+                    | _ -> Failure s
+
+let (>>=) p f = pBind p f
 let pSeq' ps = 
     let sp = reverse ps
     let folder acc curr = pAnd curr acc
-    in Seq.fold folder pUnit sp
+    in Seq.fold folder pZero sp
 
+(* Seq.fold : ('State -> 'T -> 'State) -> 'State -> seq<'T> -> 'State *)
+
+(* this doesn't work*)
+let pSeq'' ps =
+    let sp = reverse ps
+    let folder acc p = p >>= (fun r -> succeed (acc + r))
+    in Seq.fold folder "" sp
 let pABC = [pChar 'a'; pChar 'b'; pChar 'c'] |> pSeq'
 let pAny ps =
     let plist = ps |> Seq.toList
