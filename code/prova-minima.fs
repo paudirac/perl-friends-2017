@@ -14,7 +14,7 @@ let implode (xs:char list) =
     sb.ToString()
 
 let stringify x = x.ToString();
-let printParsed = printfn "%A"
+let printParsed (psd:Parsed)= printfn "%A" psd
 let chopLeft (s:string) = s.[1..]
 let chopRight (s:string) =
     let reverse s' = s' |> Array.ofSeq |> Array.rev |> Array.map (fun c -> c.ToString()) |> String.concat ""
@@ -168,64 +168,77 @@ let pApply f p =
 
 (* Markdown parser *)
 
-let pAlpha = "abcdefghijklmnopqrstuvwxyz" |> Seq.map pChar |> pAny
 
-let pSpace = pChar ' ' <|> pChar '\t'
-let pWhite = pMany1 pSpace// <|> pMany (pChar ' ') //pSpace
+let pUpper = ['A'..'Z'] |> Seq.map pChar |> pAny
+let pLower = ['a'..'z'] |> Seq.map pChar |> pAny
+let pAlpha = pUpper <|> pLower
+let pExtra = ['!'; '?'; '*'] |> Seq.map pChar |> pAny
+let pValid = pAlpha <|> pExtra
+let pSpace = pChar ' '
+let pWhite = pMany1 pSpace
 let pWord = pMany1 pAlpha
-let pText = pMany (pWord <|> pWhite)
-let pBold = pChar '*' <&> pText <&> pChar '*'
-let pnl = pChar '\010'
-let pScapes = ['#';] |> Seq.map pChar |> pAny
-let rec pText' = pText <|> (fun s -> i' s) <|> (fun s -> b' s) <|> pScapes
-and i' = (pChar '_' <&> (fun s -> pText' s) <&> pChar '_') |> pApply (wrapWith "i")
-and b' = (pChar '*' <&> (fun s -> pText' s) <&> pChar '*') |> pApply (wrapWith "b")
-let ph1 = (pChar '#' <&> pSpace <&> pText') >>= (fun t -> succeed ("<h1>" + chopLeft t + "</h1>"))
-let p = pText' <&> pnl |> pApply (wrapWith "p")
+let pUnmarkedText = pMany (pWord <|> pWhite)
+let pBold = pChar '*' <&> pUnmarkedText <&> pChar '*' |> pApply (wrapWith "b")
+let pItalic = pChar '_' <&> pUnmarkedText <&> pChar '_' |> pApply (wrapWith "i")
+let rec pMarkedText = pUnmarkedText <|> pBold <|> pItalic
+and pText = pMany (pUnmarkedText <|> pMarkedText)
+//and pBold = pChar '*' <&> (fun s -> pMarkedText s) <&> pChar '*' |> pApply (wrapWith "b")
+// let pScape = ['#'] |> Seq.map pChar |> pAny
+// let pSpace = pChar ' ' <|> pChar '\t'
+// let pWhite = pMany1 pSpace// <|> pMany (pChar ' ') //pSpace
 
-let pMarkdown' =
-(*     i' <|>
-    b' <|>
-    pText' <|>
-    pWhite <|>
-    pHeader1 *)
-    ph1 <|>
-    p
-    |> pMany
+// let pText = pMany (pWord <|> pWhite <|> pScape)
+// let pBold = pChar '*' <&> pText <&> pChar '*'
+// let pnl = pChar '\010'
+// let rec pText' = pText <|> (fun s -> i' s) <|> (fun s -> b' s)
+// and i' = (pChar '_' <&> (fun s -> pText' s) <&> pChar '_') |> pApply (wrapWith "i")
+// and b' = (pChar '*' <&> (fun s -> pText' s) <&> pChar '*') |> pApply (wrapWith "b")
+// let ph1 = (pChar '#' <&> pSpace <&> pText') >>= (fun t -> succeed ("<h1>" + chopLeft t + "</h1>"))
+// let p = pText' <&> pnl |> pApply (wrapWith "p")
 
-let nomesnl = @"
-"
-pnl nomesnl |> printParsed
-printfn "%s" nomesnl
+// let pMarkdown' =
+// (*     i' <|>
+//     b' <|>
+//     pText' <|>
+//     pWhite <|>
+//     pHeader1 *)
+//     ph1 <|>
+//     p
+//     |> pMany
 
-(* pseudo tests *)
-(* pChar 'c' "hola" |> printParsed
-pChar 'c' "cola" |> printParsed
-pAnd (pChar 'a') (pChar 'b') "abc" |> printParsed
-pAnd (pChar 'a') (pChar 'b') "bac" |> printParsed
-let pseq1 = pSeq [pChar 'a'; pChar 'e'; pChar 'i'; pChar 'o'; pChar 'u' ];
-pseq1 "aeiou" |> printParsed
-pseq1 "aaiou" |> printParsed
-pseq1 "aeiouaeiou" |> printParsed
-printfn "pAlpha:"
-pAlpha "123" |> printParsed
-pAlpha "abra" |> printParsed
-printfn "pWord:"
-pWord "word" |> printParsed
-pWord "2324" |> printParsed
-pWhite "    " |> printParsed
-printfn "pText:"
-pText "this is a phrase" |> printParsed
-pBold "this is not bold" |> printParsed
-pBold "*this is bold* and this not" |> printParsed
-b' "*bold text* nonbold text" |> printParsed
-i' "_this is italics_ and this is not" |> printParsed
-pMarkdown' "this *_will_* succeed" |> printParsed
-pMarkdown' "and _this_ _*will also*_ *succed*" |> printParsed
-pMarkdown' "this *_will_* succeed" |> printParsed
-pMarkdown' "and _this_ _*will also*_ *succed*" |> printParsed
-pMarkdown' """# this is a title 
-""" |> printParsed*)
+// let nomesnl = @"
+// "
+// pnl nomesnl |> printParsed
+// printfn "%s" nomesnl
+
+// (* pseudo tests *)
+// pChar 'c' "hola" |> printParsed
+// pChar 'c' "cola" |> printParsed
+// pAnd (pChar 'a') (pChar 'b') "abc" |> printParsed
+// pAnd (pChar 'a') (pChar 'b') "bac" |> printParsed
+// let pseq1 = pSeq [pChar 'a'; pChar 'e'; pChar 'i'; pChar 'o'; pChar 'u' ];
+// pseq1 "aeiou" |> printParsed
+// pseq1 "aaiou" |> printParsed
+// pseq1 "aeiouaeiou" |> printParsed
+// printfn "pAlpha:"
+// pAlpha "123" |> printParsed
+// pAlpha "abra" |> printParsed
+// printfn "pWord:"
+// pWord "word" |> printParsed
+// pWord "2324" |> printParsed
+// pWhite "    " |> printParsed
+// printfn "pText:"
+// pText "this is a phrase" |> printParsed
+// pBold "this is not bold" |> printParsed
+// pBold "*this is bold* and this not" |> printParsed
+// b' "*bold text* nonbold text" |> printParsed
+// i' "_this is italics_ and this is not" |> printParsed
+// pMarkdown' "this *_will_* succeed" |> printParsed
+// pMarkdown' "and _this_ _*will also*_ *succed*" |> printParsed
+// pMarkdown' "this *_will_* succeed" |> printParsed
+// pMarkdown' "and _this_ _*will also*_ *succed*" |> printParsed
+// pMarkdown' """# this is a title 
+// """ |> printParsed
 
 let md = "@# This is a title
 
