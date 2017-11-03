@@ -255,7 +255,7 @@ let pAnd p1 p2 =
                   | Failure f -> Failure f
                   | Success (f,r) -> match p2 r with
                                      | Success (f2, r2) -> Success (f + f2, r2)
-                                     | _ -> Failure f
+                                     | _ -> Failure s
    #+end_src
 
    #+begin_src fsharp :eval never
@@ -341,7 +341,6 @@ let pBind p f =
 let (>>=) p f = pBind p f
 
 let succeed v = function s -> Success(v, s)
-
    #+end_src
 
 ** 
@@ -359,7 +358,28 @@ val it : Parsed = Success ("b","cde")
 val it : Parsed = Success ("ab","cde")
    #+end_src
 
-** 
+** unit, zero & succeed
+
+   #+begin_src fsharp :eval never
+let pAdvance = 
+    function s -> match explode s with
+                    | [] -> Failure s
+                    | c::cs -> Success (implode [c], implode cs)
+
+let succeed v = function s -> Success(v, s)
+
+let pZero = function s -> Failure s
+let pUnit = succeed ""
+   #+end_src
+
+** introducing bind
+
+   #+begin_src fsharp :eval never
+> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> pUnit >>= fun empty -> succeed (a + b + c + empty)) "abcdefgh";;
+val it : Parsed = Success ("abc","defgh")
+> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> pUnit >>= fun empty -> succeed (a + b + c + empty)) "aaaabcdefgh";;
+val it : Parsed = Failure "aaabcdefgh"
+   #+end_src
 
    #+begin_src fsharp :eval never
 > (pA >>= fun a ->
@@ -373,4 +393,13 @@ val it : Parsed = Success ("ab","cdef")
 val abc : (string -> Parsed)
 > abc "abcdef";;
 val it : Parsed = Success ("abc","def")
+   #+end_src
+
+** how fold works
+
+   #+begin_src fsharp :eval never
+> Seq.fold (fun acc n -> acc + (sprintf "%d" n)) "" [1;2;3];;
+val it : string = "123"
+> Seq.fold;;
+val it : (('a -> 'b -> 'a) -> 'a -> seq<'b> -> 'a)
    #+end_src

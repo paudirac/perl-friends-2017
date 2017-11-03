@@ -30,7 +30,7 @@ let pChar c =
 
 let greedy r1 r2 =
     let len r = match r with
-                | Success(f,rest) -> String.length f
+                | Success(f,_) -> String.length f
                 | _ -> 0
     let c1 = len r1
     let c2 = len r2
@@ -49,7 +49,7 @@ let pAnd p1 p2 =
                   | Failure f -> Failure f
                   | Success (f,r) -> match p2 r with
                                      | Success (f2, r2) -> Success (f + f2, r2)
-                                     | _ -> Failure f
+                                     | _ -> Failure s
 
 let (<&>) p1 p2 = pAnd p1 p2
 
@@ -77,43 +77,75 @@ let fac' n =
 
 let reverse seq = seq |> Array.ofSeq |> Array.rev
 
-let pUnit = 
+let pAdvance = 
     function s -> match explode s with
                     | [] -> Failure s
                     | c::cs -> Success (implode [c], implode cs)
 
-let pZero = function s -> Failure s
-
 let succeed v = function s -> Success(v, s)
+
+let pZero = function s -> Failure s
+let pUnit = succeed ""
+
 let pBind p f =
     function s -> match p s with
                     | Success (s', r) -> let p' = f s' in p' r
                     | _ -> Failure s
 
 let (>>=) p f = pBind p f
-let pSeq' ps = 
+
+let pAnd' pA pB = pA >>= fun a ->
+                             pB >>= fun b ->
+                                        succeed (a + b)
+
+let pOr' pA pB = function s -> greedy (pA s) (pB s)
+
+(* let pABC = pA >>= fun a -> 
+                      pB >>= fun b -> 
+                      pC >>= fun c -> 
+                      succeed (a + b + c)
+ *)
+
+
+let pSeq' (ps: Parser seq) =
+    let folder (acc: Parser) (p: Parser) : Parser = acc <&> p
+    Seq.fold folder pUnit ps    
+
+
+(* let pSeq' ps =   
     let sp = reverse ps
     let folder acc curr = pAnd curr acc
     in Seq.fold folder pZero sp
-
+ *)
 (* Seq.fold : ('State -> 'T -> 'State) -> 'State -> seq<'T> -> 'State *)
 
 (* this doesn't work*)
-let pSeq'' ps =
+
+let pA = pChar 'a'
+let pB = pChar 'b'
+let pC = pChar 'c'
+
+let pABC = pA >>= fun a -> 
+                      pB >>= fun b -> 
+                      pC >>= fun c -> 
+                      succeed (a + b + c)
+(* let pSeq'' ps =
     let sp = reverse ps
     let folder acc p = p >>= (fun r -> succeed (acc + r))
-    in Seq.fold folder "" sp
-let pABC = [pChar 'a'; pChar 'b'; pChar 'c'] |> pSeq'
-let pAny ps =
+    in Seq.fold folder "" sp *)
+(* let pABC = [pChar 'a'; pChar 'b'; pChar 'c'] |> pSeq' *)
+let pAny ps : Parser =
     let plist = ps |> Seq.toList
     function s ->
-        let rec parse parsers =
-            match parsers with
-            | [] -> Failure s
-            | p::ps' -> match p s with
-                        | Success(f,r) -> Success(f,r)
-                        | _ -> parse ps'
-        parse plist
+        if s.Length = 0 then Failure ""
+        else 
+            let rec parse parsers =
+                match parsers with
+                | [] -> Failure s
+                | p::ps' -> match p s with
+                            | Success(f,r) -> Success(f,r)
+                            | _ -> parse ps'
+            parse plist
 
 let pMany p =
     function s ->
@@ -125,6 +157,8 @@ let pMany p =
                                  | _ -> parse (p r1) (acc + f1) r1 (i + 1)
         parse (p s) "" s 0
 
+let pMany1 p = p <&> pMany p
+
 let pApply f p =
     function s ->
         let r = p s
@@ -135,16 +169,18 @@ let pApply f p =
 (* Markdown parser *)
 
 let pAlpha = "abcdefghijklmnopqrstuvwxyz" |> Seq.map pChar |> pAny
-let pWord = pMany pAlpha
+
 let pSpace = pChar ' ' <|> pChar '\t'
-let pWhite = pChar ' '// <|> pMany (pChar ' ') //pSpace
+let pWhite = pMany1 pSpace// <|> pMany (pChar ' ') //pSpace
+let pWord = pMany1 pAlpha
 let pText = pMany (pWord <|> pWhite)
 let pBold = pChar '*' <&> pText <&> pChar '*'
 let pnl = pChar '\010'
-let rec pText' = pText <|> (fun s -> i' s) <|> (fun s -> b' s)
+let pScapes = ['#';] |> Seq.map pChar |> pAny
+let rec pText' = pText <|> (fun s -> i' s) <|> (fun s -> b' s) <|> pScapes
 and i' = (pChar '_' <&> (fun s -> pText' s) <&> pChar '_') |> pApply (wrapWith "i")
 and b' = (pChar '*' <&> (fun s -> pText' s) <&> pChar '*') |> pApply (wrapWith "b")
-and ph1 = pChar '#' <&> (fun s -> pText' s) <&> pnl |> pApply (wrapWith "h1")
+let ph1 = (pChar '#' <&> pSpace <&> pText') >>= (fun t -> succeed ("<h1>" + chopLeft t + "</h1>"))
 let p = pText' <&> pnl |> pApply (wrapWith "p")
 
 let pMarkdown' =
