@@ -24,7 +24,7 @@
 * About me
   :PROPERTIES:
   :reveal_background_transition: zoom
-  :reveal_background: ./images/double-slit.jpg
+  :reveal_background: ./images/headroom.gif
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
@@ -34,6 +34,25 @@
   - I usually praise about functional programming
   - my knowledge of football reduces to: =I think there's a spherical ball=
   - so…, probably I meant soccer
+
+** 
+  :PROPERTIES:
+  :reveal_background: ./images/physics.jpg
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+  I'm an =evil= Emacs user.
+* on the shoulders of
+  :PROPERTIES:
+  :reveal_background: ./images/brain.jpeg
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+  - [[https://eprints.nottingham.ac.uk/223/1/pearl.pdf][Monadic parsing in Haskell, Hutton & Meijer]]
+  - [[http://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf][Monadic parser combinators, Hutton & Meijer]]
+  - [[http://theorangeduck.com/page/you-could-have-invented-parser-combinators][You could have invented parser combinators]]
+  - [[https://github.com/capside-functional-nomads/turning][turning, nomads]]
+  - [[https://github.com/paudirac/perl-friends-2017.git][paudirac/perl-friends-2017, this repo on github]]
 
 * 
   Are you ready?
@@ -56,19 +75,13 @@
 
 ** 
   :PROPERTIES:
-  :reveal_background: ./images/pills2.jpg
+  :reveal_background: ./images/rabbit-hole.png
   :END:
 
    #+begin_src fsharp :eval never
    buildingBlocks |> buildingAParser |> buildingACompiler
    #+end_src
 
-** 
-  :PROPERTIES:
-  :reveal_background: ./images/pills2.jpg
-  :END:
-
-  Disclaimer: I've never reached the last step
 
 * 
   :PROPERTIES:
@@ -410,7 +423,6 @@ let pAB = pA <&> pB
   :reveal_background: ./images/design4.jpg
   :END:
 
-  #+ATTR_REVEAL: :frag (appear)
   [[https://www.google.es/search?q=recursion][what is recursion?]]
 
   #+ATTR_REVEAL: :frag (appear)
@@ -429,12 +441,13 @@ let pSeq ps =
    #+end_src
 
 ** how fold works
-
   :PROPERTIES:
   :reveal_background: ./images/design4.jpg
   :END:
+
   #+ATTR_REVEAL: :frag (appear)
    From the docs:
+  #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
 Seq.fold : ('State -> 'T -> 'State) -> 'State -> seq<'T> -> 'State
    #+end_src
@@ -528,17 +541,5 @@ val abc : (string -> Parsed)
 > abc "abcdef";;
 val it : Parsed = Success ("abc","def")
    #+end_src
-* references
-
-  #+ATTR_REVEAL: :frag (appear)
-  - [[https://eprints.nottingham.ac.uk/223/1/pearl.pdf][Monadic parsing in Haskell, Hutton & Meijer]]
-  - [[http://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf][Monadic parser combinators, Hutton & Meijer]]
-  - [[http://theorangeduck.com/page/you-could-have-invented-parser-combinators][You could have invented parser combinators]]
-  - [[https://github.com/capside-functional-nomads/turning][turning, nomads]]
-
-  #+ATTR_REVEAL: :frag (appear)
-  And this repo:
-  #+ATTR_REVEAL: :frag (appear)
-  - [[https://github.com/paudirac/perl-friends-2017.git][paudirac/perl-friends-2017, on github]]
 
 * THANKS
