@@ -528,4 +528,17 @@ val abc : (string -> Parsed)
 > abc "abcdef";;
 val it : Parsed = Success ("abc","def")
    #+end_src
+* references
+
+  #+ATTR_REVEAL: :frag (appear)
+  - [[https://eprints.nottingham.ac.uk/223/1/pearl.pdf][Monadic parsing in Haskell, Hutton & Meijer]]
+  - [[http://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf][Monadic parser combinators, Hutton & Meijer]]
+  - [[http://theorangeduck.com/page/you-could-have-invented-parser-combinators][You could have invented parser combinators]]
+  - [[https://github.com/capside-functional-nomads/turning][turning, nomads]]
+
+  #+ATTR_REVEAL: :frag (appear)
+  And this repo:
+  #+ATTR_REVEAL: :frag (appear)
+  - [[https://github.com/paudirac/perl-friends-2017.git][paudirac/perl-friends-2017, on github]]
+
 * THANKS
