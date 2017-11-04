@@ -5,7 +5,7 @@
 
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 #+REVEAL_EXTRA_CSS: ./css/stylesheet.css
-# #+REVEAL_THEME: white
+#+REVEAL_THEME: black
 
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
@@ -15,13 +15,16 @@
 
 
 * Parsing markdown with functions
+  :PROPERTIES:
+  :reveal_background: ./images/inception.jpg
+  :END: 
 
   *Introducing F#*
 
 * About me
   :PROPERTIES:
   :reveal_background_transition: zoom
-  :reveal_background: ./images/fullerene.png
+  :reveal_background: ./images/double-slit.jpg
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
@@ -33,6 +36,7 @@
   - so…, probably I meant soccer
 
 * 
+  Are you ready?
 
 * 
   :PROPERTIES:
@@ -58,6 +62,31 @@
    #+begin_src fsharp :eval never
    buildingBlocks |> buildingAParser |> buildingACompiler
    #+end_src
+
+** 
+  :PROPERTIES:
+  :reveal_background: ./images/pills2.jpg
+  :END:
+
+  Disclaimer: I've never reached the last step
+
+* 
+  :PROPERTIES:
+  :reveal_background: ./images/parental-advisory.jpg
+  :END:
+
+** F#
+  :PROPERTIES:
+  :reveal_background: ./images/fsharp.png
+  :END:
+
+   #+ATTR_REVEAL: :frag (appear)
+   In the following, take into account that
+   #+ATTR_REVEAL: :frag (appear)
+   - whitespace is significant
+   - we know the value of everything, but the cost of nothing
+   - we hate the *state*
+   - (even as citizens)
 
 * building blocks (types)
   :PROPERTIES:
@@ -151,10 +180,9 @@
    val it : string = "The meaning of life is 42"
    #+end_src
 
-
 * Parsing a char
   :PROPERTIES:
-  :reveal_background: ./images/refraction.jpg
+  :reveal_background: ./images/design.jpg
   :END:
 
   #+ATTR_REVEAL: :frag (appear)
@@ -162,7 +190,7 @@
   
 ** Design
    :PROPERTIES:
-   :reveal_background: ./images/refraction.jpg
+   :reveal_background: ./images/design.jpg
    :END:
   
    #+ATTR_REVEAL: :frag (appear)
@@ -228,7 +256,19 @@ let pChar c =
    #+end_src
 
 * parsing two chars 
-  
+  :PROPERTIES:
+  :reveal_background: ./images/design2.jpg
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+  We would like to parse the chars =ab=.
+
+
+** Design
+  :PROPERTIES:
+  :reveal_background: ./images/design2.jpg
+  :END:
+
   #+ATTR_REVEAL: :frag (appear)
   The parser of =ab= is a function that, given an input string
   =s=:
@@ -238,6 +278,9 @@ let pChar c =
    - or fails parsing =ab=
 
 ** generalize 
+  :PROPERTIES:
+  :reveal_background: ./images/design2.jpg
+  :END:
 
   #+ATTR_REVEAL: :frag (appear)
   The would like a function that, given two parsers =p1= and =p2=
@@ -249,6 +292,10 @@ let pChar c =
    - or fails parsing
 
 ** 
+  :PROPERTIES:
+  :reveal_background: ./images/design2.jpg
+  :END:
+
    #+begin_src fsharp :eval never
 let pAnd p1 p2 =
     function (s:string) -> match p1 s with
@@ -262,24 +309,111 @@ let pAnd p1 p2 =
 val pAnd : p1:(string -> Parsed) -> p2:(string -> Parsed) -> _arg1:string -> Parsed
    #+end_src
 
-** 
+* one abstraction level up
+  :PROPERTIES:
+  :reveal_background: ./images/monolith-moon.jpg
+  :END:
+
+   #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
 let pA = pChar 'a'
 let pB = pChar 'b'
 let pAB = pAnd pA pB
    #+end_src
 
+   #+ATTR_REVEAL: :frag (appear)
+   Note that we are dealing directly with *objects*.
+
 ** expressivity
+  :PROPERTIES:
+  :reveal_background: ./images/monolith-moon.jpg
+  :END:
+
    #+begin_src fsharp :eval never
 let (<&>) p1 p2 = pAnd p1 p2
 let pAB = pA <&> pB
    #+end_src
 
+* 
+  :PROPERTIES:
+  :reveal_background: ./images/zen.jpg
+  :END:
 
-* pSeq
+** 
+  :PROPERTIES:
+  :reveal_background: ./images/zen2.jpg
+  :END:
+
+    #+ATTR_REVEAL: :frag (appear)
+    Recuerda tus sueños y lucha por ellos. 
+    #+ATTR_REVEAL: :frag (appear)
+    Debes saber qué quieres de la vida. 
+    #+ATTR_REVEAL: :frag (appear)
+    Solo hay una cosa que hace tu sueño imposible
+    #+ATTR_REVEAL: :frag (appear)
+    los putos compiladores.
+    #+ATTR_REVEAL: :frag (appear)
+    — Paulo Cohelo
+
+
+* REPL time
+  :PROPERTIES:
+  :reveal_background: ./images/doc.jpg
+  :END:
+
+** markdown parser
+   :PROPERTIES:
+   :reveal_background: ./images/jupiter-monolith.jpg
+   :END:
+
+    #+ATTR_REVEAL: :frag (appear)
+    #+begin_src fsharp :eval never
+ let pUpper = ['A'..'Z'] |> Seq.map pChar |> pAny
+ let pLower = ['a'..'z'] |> Seq.map pChar |> pAny
+ let pAlpha = pUpper <|> pLower
+ let pExtra = ['!'; '?'; '*'] |> Seq.map pChar |> pAny
+ let pValid = pAlpha <|> pExtra
+ let pSpace = pChar ' '
+ let pWhite = pMany1 pSpace
+ let pWord = pMany1 pAlpha
+ let pUnmarkedText = pMany (pWord <|> pWhite)
+ let rec pBold = pChar '*' <&> ((fun s -> pItalic s) <|> 
+                         pUnmarkedText) <&> pChar '*' |> pApply (wrapWith "b")
+ and pItalic = pChar '_' <&> ((fun s -> pBold s) <|> 
+                     pUnmarkedText) <&> pChar '_' |> pApply (wrapWith "i")
+ and pMarkedText = pUnmarkedText <|> (fun s -> pBold s) <|> (fun s -> pItalic s)
+ and pText = pMany (pUnmarkedText <|> pMarkedText)
+    #+end_src
+
+* case study: pSeq
+  :PROPERTIES:
+  :reveal_background: ./images/design4.jpg
+  :END:
+
+** design
+  :PROPERTIES:
+  :reveal_background: ./images/design4.jpg
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+  The would like a function that, given a sequences of parsers =ps=
+  will return a parser that, given an input string
+  =s=:
+
+  #+ATTR_REVEAL: :frag (appear)
+   - will succeds parsing what =p1= parses and keep parsing what =p2= parses,
+     thill the 
+   - or fails parsing
 
 ** recursive
+  :PROPERTIES:
+  :reveal_background: ./images/design4.jpg
+  :END:
 
+  #+ATTR_REVEAL: :frag (appear)
+  [[https://www.google.es/search?q=recursion][what is recursion?]]
+
+  #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
 let pSeq ps =
     let plist = ps |> Seq.toList
@@ -294,71 +428,47 @@ let pSeq ps =
         parse plist "" s
    #+end_src
 
-** generalize
+** how fold works
 
+  :PROPERTIES:
+  :reveal_background: ./images/design4.jpg
+  :END:
+  #+ATTR_REVEAL: :frag (appear)
    From the docs:
    #+begin_src fsharp :eval never
 Seq.fold : ('State -> 'T -> 'State) -> 'State -> seq<'T> -> 'State
    #+end_src
 
-   in our case ``State` is `Parser` and `T` is `Parser` also.
-
-   pDot is unit?
-   Example with unit
-
+  #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
-let pDot = 
-    function s -> match explode s with
-                    | [] -> Failure s
-                    | c::cs -> Success (implode [c], implode cs)
-
-let pSeq' ps = 
-    let sp = ps |> Array.ofSeq |> Array.rev
-    let folder acc curr = pAnd curr acc
-    in Seq.fold folder pDot sp
+> Seq.fold (fun acc n -> acc + (sprintf "%d" n)) "" [1;2;3];;
+val it : string = "123"
+> Seq.fold;;
+val it : (('a -> 'b -> 'a) -> 'a -> seq<'b> -> 'a)
    #+end_src
 
-** Recap 
+** fold over parsers
   :PROPERTIES:
-  :reveal_background: ./images/monolith-moon.jpg
+  :reveal_background: ./images/monolith-elder.png
   :END:
 
    #+begin_src fsharp :eval never
-let pSeq' ps = 
-    let sp = ps |> Array.ofSeq |> Array.rev
-    let folder acc curr = pAnd curr acc
-    in Seq.fold folder pDot sp
+let pSeq' (ps: Parser seq) =
+    let folder (acc: Parser) (p: Parser) : Parser = acc <&> p
+    Seq.fold folder pUnit ps    
    #+end_src
 
-** bind
+* one abstraction level up 
 
-   #+begin_src fsharp :eval never
-let pBind p f =
-    function s -> match p s with
-                    | Success (s', r) -> let p' = f s' in p' r
-                    | _ -> Failure s
-
-let (>>=) p f = pBind p f
-
-let succeed v = function s -> Success(v, s)
-   #+end_src
-
-** 
-
-   #+begin_src fsharp :eval never
-> let pA = pChar 'a';;
-val pA : (string -> Parsed)
-> let pB = pChar 'b';;
-val pB : (string -> Parsed)
-> pA >>= (fun s -> pB);;
-val it : (string -> Parsed)
-> (pA >>= (fun s -> pB)) "abcde";;
-val it : Parsed = Success ("b","cde")
-> (pA >>= (fun a -> pB >>= (fun b -> succeed (a + b)))) "abcde";;
-val it : Parsed = Success ("ab","cde")
-   #+end_src
+** unknown territory
+  :PROPERTIES:
+  :reveal_background: ./images/mars.jpg
+  :END:
 
 ** unit, zero & succeed
+  :PROPERTIES:
+  :reveal_background: ./images/mars.jpg
+  :END:
 
    #+begin_src fsharp :eval never
 let pAdvance = 
@@ -372,15 +482,38 @@ let pZero = function s -> Failure s
 let pUnit = succeed ""
    #+end_src
 
-** introducing bind
+** bind
+  :PROPERTIES:
+  :reveal_background: ./images/mars.jpg
+  :END:
 
    #+begin_src fsharp :eval never
-> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> pUnit >>= fun empty -> succeed (a + b + c + empty)) "abcdefgh";;
+let pBind p f =
+    function s -> match p s with
+                    | Success (s', r) -> let p' = f s' in p' r
+                    | _ -> Failure s
+
+let (>>=) p f = pBind p f
+
+let succeed v = function s -> Success(v, s)
+   #+end_src
+
+** introducing bind
+  :PROPERTIES:
+  :reveal_background: ./images/mars.jpg
+  :END:
+
+  #+ATTR_REVEAL: :frag (appear)
+   #+begin_src fsharp :eval never
+> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> 
+          pUnit >>= fun empty -> succeed (a + b + c + empty)) "abcdefgh";;
 val it : Parsed = Success ("abc","defgh")
-> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> pUnit >>= fun empty -> succeed (a + b + c + empty)) "aaaabcdefgh";;
+> (pA >>= fun a -> pB >>= fun b -> pC >>= fun c -> 
+          pUnit >>= fun empty -> succeed (a + b + c + empty)) "aaaabcdefgh";;
 val it : Parsed = Failure "aaabcdefgh"
    #+end_src
 
+  #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
 > (pA >>= fun a ->
 -            pB >>= fun b ->
@@ -388,18 +521,11 @@ val it : Parsed = Failure "aaabcdefgh"
 val it : Parsed = Success ("ab","cdef")
    #+end_src
 
+  #+ATTR_REVEAL: :frag (appear)
    #+begin_src fsharp :eval never
 > let abc = a >>= fun a' -> b >>= fun b' -> c >>= fun c' -> succeed (a' + b' + c');;
 val abc : (string -> Parsed)
 > abc "abcdef";;
 val it : Parsed = Success ("abc","def")
    #+end_src
-
-** how fold works
-
-   #+begin_src fsharp :eval never
-> Seq.fold (fun acc n -> acc + (sprintf "%d" n)) "" [1;2;3];;
-val it : string = "123"
-> Seq.fold;;
-val it : (('a -> 'b -> 'a) -> 'a -> seq<'b> -> 'a)
-   #+end_src
+* THANKS

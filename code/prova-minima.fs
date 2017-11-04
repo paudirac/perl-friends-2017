@@ -138,7 +138,7 @@ let pAny ps : Parser =
     let plist = ps |> Seq.toList
     function s ->
         if s.Length = 0 then Failure ""
-        else 
+        else
             let rec parse parsers =
                 match parsers with
                 | [] -> Failure s
